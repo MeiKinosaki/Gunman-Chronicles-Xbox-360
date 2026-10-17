@@ -9,9 +9,10 @@ HOST_CXXFLAGS  ?= -O2 -Wall -Wextra -std=c++11 -pedantic
 SRC := src/main.cpp src/core/runtime.cpp src/core/logger.cpp
 BUILD_DIR := build
 ELF := $(BUILD_DIR)/elf/Xenon.elf
-HOST_TEST := $(BUILD_DIR)/host/gunman360-smoke-test
+HOST_APP := $(BUILD_DIR)/host/gunman360-smoke-test
+HOST_TEST := $(BUILD_DIR)/host/runtime-test
 
-.PHONY: all xenon-elf host-test clean show-config
+.PHONY: all xenon-elf host-test host-app clean show-config
 all: xenon-elf
 
 xenon-elf: $(ELF)
@@ -21,12 +22,20 @@ $(ELF): $(SRC)
 	$(XENON_CXX) $(XENON_CXXFLAGS) -Isrc $(SRC) $(XENON_LDFLAGS) $(XENON_LIBS) -o $@
 	@echo "ELF output: $@ (verify format and target dependencies before hardware testing)"
 
-$(HOST_TEST): $(SRC)
+$(HOST_APP): $(SRC)
 	mkdir -p $(BUILD_DIR)/host
 	$(HOST_CXX) $(HOST_CXXFLAGS) -Isrc $(SRC) -o $@
 
-host-test: $(HOST_TEST)
+$(HOST_TEST): tests/runtime_test.cpp src/core/runtime.cpp src/core/logger.cpp
+	mkdir -p $(BUILD_DIR)/host
+	$(HOST_CXX) $(HOST_CXXFLAGS) -Isrc tests/runtime_test.cpp src/core/runtime.cpp src/core/logger.cpp -o $@
+
+host-app: $(HOST_APP)
+	./$(HOST_APP)
+
+host-test: $(HOST_TEST) $(HOST_APP)
 	./$(HOST_TEST)
+	./$(HOST_APP)
 
 show-config:
 	@echo "XENON_CXX=$(XENON_CXX)"
