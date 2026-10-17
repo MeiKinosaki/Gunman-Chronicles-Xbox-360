@@ -1,141 +1,135 @@
 # Gunman360 — Gunman Chronicles para Xbox 360
 
 > **Versão de desenvolvimento:** v0.2b  
-> **Plataforma-alvo:** Xbox 360 com RGH/JTAG, sujeito à compatibilidade da toolchain e do ambiente de execução  
-> **Prioridade de build:** `Xenon.elf` primeiro; validar o ELF; depois investigar/gerar `default.xex`.
+> **Plataforma-alvo:** Xbox 360 RGH/JTAG (dependente da toolchain e dos testes reais)  
+> **Ordem obrigatória do build:** código → `Xenon.elf` → validação → `default.xex`
 
-Gunman360 é um projeto em estágio inicial para pesquisar e construir uma base de port/runtime de **Gunman Chronicles** para Xbox 360. Esta branch contém apenas um bootstrap mínimo e a configuração inicial de build. **Ainda não é um port jogável** e não inclui o motor original, seus recursos ou uma implementação completa do jogo.
+Gunman360 é um projeto inicial para pesquisar e construir uma base de port/runtime de **Gunman Chronicles** para Xbox 360. O código atual é um bootstrap técnico, ainda **não é um port jogável** e não contém o motor original nem todos os recursos do jogo.
 
-## Estado atual
+## Estado atual verificado
 
-| Item | Estado verificado |
+| Etapa | Estado |
 |---|---|
-| Repositório GitHub | Criado |
-| Branch de desenvolvimento v0.2b | Criada: `gunman360-v0.2b-xenon-elf-scaffold` |
-| Ponto de entrada mínimo em C++ | Adicionado em `src/main.cpp` |
-| Makefile configurável | Adicionado |
-| Guia de build | Adicionado em `BUILD_XENON.md` |
-| Compilação com toolchain Xenon real | **Ainda não verificada** |
-| Binário `Xenon.elf` gerado | **Não confirmado** |
+| README principal na `main` | Atualizado |
+| Runtime mínimo | Implementado como scaffold |
+| Logger mínimo | Implementado |
+| Build de teste no computador (host) | Configurado; execução ainda precisa ser verificada |
+| GitHub Actions para teste host | Workflow adicionado; resultado de execução pendente |
+| Toolchain Xenon real | Pendente de configuração/verificação |
+| `Xenon.elf` | Ainda não gerado/verificado |
+| Teste no XeLL / console | Pendente |
 | Conversão para `default.xex` | Pendente |
-| Teste no XeLL/Xbox 360 RGH | Pendente |
-| Engine, renderização e gameplay | Ainda não implementados |
+| Renderização, áudio e gameplay | Planejados; não implementados |
 
-Um commit no GitHub confirma apenas que os arquivos foram gravados no repositório; não comprova que o projeto compilou ou foi testado em hardware.
-
-## Objetivo e ordem de desenvolvimento
-
-1. Preparar uma base de código C/C++ organizada para a plataforma Xenon.
-2. Configurar e identificar a toolchain cruzada compatível com Xbox 360.
-3. Compilar o bootstrap para gerar `Xenon.elf`.
-4. Verificar o formato do ELF, o ponto de entrada, as dependências e os requisitos de linkedição.
-5. Testar a inicialização do ELF em um ambiente compatível, como XeLL, se suportado pela configuração usada.
-6. Só depois da validação, confirmar a sintaxe e os requisitos da ferramenta `elf2xex` disponível na toolchain e gerar `default.xex`.
-7. Testar o XEX no console de destino e registrar os resultados.
-8. Desenvolver os subsistemas do jogo em incrementos pequenos, com testes e histórico de versões.
-
-**Não se deve marcar uma etapa como concluída sem evidência reproduzível.** As versões devem avançar sequencialmente — v0.2b, v0.3b, v0.4b e assim por diante — sem saltar versões.
+Um arquivo enviado ao GitHub ou um workflow configurado não equivale a build bem-sucedido. Os resultados da automação devem ser conferidos na aba **Actions**.
 
 ## Estrutura atual
 
 ```text
 Gunman-Chronicles-Xbox-360/
-├── README.md
-├── LICENSE
+├── .github/
+│   └── workflows/
+│       └── host-smoke-test.yml
+├── src/
+│   ├── main.cpp
+│   └── core/
+│       ├── logger.hpp
+│       ├── logger.cpp
+│       ├── runtime.hpp
+│       └── runtime.cpp
 ├── BUILD_XENON.md
+├── LICENSE
 ├── Makefile
-└── src/
-    └── main.cpp
+└── README.md
 ```
 
-O Makefile cria diretórios de build durante a compilação. Os artefatos gerados não são incluídos no repositório por padrão.
+## Funcionalidades que já existem no bootstrap
 
-## Requisitos de build
+- **Logger:** emite mensagens básicas de informação, aviso e erro.
+- **Runtime:** ciclo mínimo de inicialização, execução de smoke test e encerramento.
+- **Build host:** alvo para compilar o código portável com um compilador C++ comum.
+- **Build Xenon:** alvo configurável para tentar produzir o ELF quando a toolchain correta estiver instalada.
+- **GitHub Actions:** workflow para executar o teste host em push, pull request ou manualmente.
 
-- Um ambiente de desenvolvimento com uma **toolchain cruzada compatível com Xbox 360/Xenon**.
-- O compilador C++ configurado no Makefile (por padrão, `xenon-g++`).
-- Os arquivos de inicialização, bibliotecas, opções de linkedição e demais dependências exigidos pela versão específica da toolchain.
-- Para a etapa posterior de XEX, uma versão compatível de `elf2xex` e a documentação correspondente.
+Esses componentes são uma fundação mínima; não implementam os sistemas de jogo nem comprovam compatibilidade com o Xbox 360.
 
-O nome dos executáveis e as opções de compilação/linkedição podem variar entre distribuições. O Makefile é configurável, mas não substitui a instalação nem a validação da toolchain.
+## Teste local do bootstrap
 
-### Consultar a configuração
+Com um compilador C++ compatível instalado, execute:
+
+```sh
+make host-test
+```
+
+O teste compila e executa o bootstrap no computador de desenvolvimento. Isso valida apenas a compilação host, não a plataforma Xenon.
+
+Para consultar a configuração de compilação:
 
 ```sh
 make show-config
 ```
 
-### Tentar compilar o ELF
+## Build do Xbox 360: prioridade Xenon.elf
 
-Em um ambiente com a toolchain compatível instalada:
+É necessária uma toolchain cruzada compatível com Xbox 360/Xenon. Os nomes dos executáveis, arquivos de inicialização, bibliotecas e opções de linkedição variam conforme a distribuição.
+
+Com a toolchain instalada e configurada:
 
 ```sh
 make xenon-elf
 ```
 
-Para usar outro caminho de compilador:
+O Makefile usa `xenon-g++` por padrão. Se o compilador estiver em outro caminho, ajuste-o:
 
 ```sh
 make xenon-elf XENON_CXX=/caminho/para/xenon-g++
 ```
 
-Esse exemplo altera apenas o caminho do compilador; não adiciona bibliotecas ou arquivos de inicialização que estejam faltando. Consulte também [BUILD_XENON.md](BUILD_XENON.md).
+A substituição do caminho não instala dependências nem garante que as opções de link estejam corretas. Depois de compilar, verifique o formato do ELF, a arquitetura PowerPC/Xenon, o ponto de entrada e as dependências. A saída esperada é `build/elf/Xenon.elf`; ela só pode ser considerada pronta após um build real bem-sucedido.
 
-### Saída esperada do alvo de build
+## Etapa seguinte: default.xex
 
-```text
-build/
-├── obj/
-│   └── main.o
-└── elf/
-    └── Xenon.elf
-```
+A conversão para `default.xex` só deve começar após validar o ELF. É necessário identificar a versão da ferramenta `elf2xex` instalada e confirmar sua sintaxe e dependências. Não há ainda um `default.xex` confirmado neste repositório.
 
-Essa árvore descreve a **saída esperada**, não arquivos binários já produzidos. Se o build falhar, registre a mensagem completa e ajuste as opções à toolchain instalada antes de declarar o ELF pronto.
+Após a conversão, registrar os resultados do teste no ambiente Xbox 360 de destino. Não afirmar que o jogo inicia até isso ter sido observado.
 
 ## Arquitetura planejada
 
-Estes são objetivos de desenvolvimento, não componentes que já estejam implementados:
+Os itens abaixo são metas futuras, não funcionalidades já concluídas:
 
-- **Runtime e inicialização:** ciclo principal, tratamento de falhas e encerramento controlado.
-- **Plataforma Xbox 360:** integração com entrada, vídeo, áudio, armazenamento e APIs disponíveis na toolchain.
-- **Memória e recursos:** carregamento controlado de dados, gestão de memória e diagnóstico de erros.
-- **Renderização:** investigação do formato dos dados e criação de uma camada de renderização compatível com a GPU Xenos.
-- **Conteúdo do jogo:** carregadores e adaptadores para os formatos de recursos necessários, após verificação técnica e jurídica.
-- **Gameplay:** entidades, câmera, colisão, animação, lógica de NPCs, eventos, HUD e sistema de salvamento, a serem implementados e testados gradualmente.
-- **Ferramentas de diagnóstico:** logs, verificações de integridade, métricas de desempenho e testes reproduzíveis.
+- **Runtime e plataforma:** inicialização, tratamento de falhas e ciclo principal.
+- **Memória e recursos:** gestão de memória, leitura de arquivos e diagnóstico.
+- **Vídeo/renderização:** estudo dos formatos e adaptação para a GPU Xenos.
+- **Entrada e áudio:** integração com os mecanismos disponíveis na plataforma.
+- **Conteúdo:** carregadores e adaptadores para formatos necessários, após investigação técnica.
+- **Gameplay:** entidades, câmera, colisão, animação, lógica de NPCs, eventos, HUD e salvamento.
+- **Desempenho:** métricas, profiling, testes de regressão e streaming de recursos.
 
-A prioridade imediata é a toolchain e a inicialização ELF. Os sistemas de jogo não devem ser apresentados como funcionais antes de haver código e testes correspondentes.
+## Roadmap sequencial
 
-## Compatibilidade e limites técnicos
+1. **v0.2b — bootstrap:** runtime e logger mínimos, Makefile, documentação e workflow host.
+2. **Próximo marco:** executar e conferir o workflow de teste host.
+3. Confirmar a toolchain Xenon e suas dependências.
+4. Produzir e inspecionar `Xenon.elf`.
+5. Testar inicialização em ambiente compatível, se suportado.
+6. Confirmar o processo `elf2xex` e gerar `default.xex`.
+7. Testar o XEX no console-alvo.
+8. Só então avançar para os subsistemas do jogo, com testes por etapa.
 
-O executável original de PC e suas dependências não podem ser presumidos compatíveis com o Xbox 360. Um port real pode exigir a reimplementação de partes do runtime, adaptação de APIs, tratamento de diferenças de CPU/GPU e conversão ou carregamento adequado dos recursos.
+As versões devem avançar uma por vez (v0.2b → v0.3b → v0.4b...), sem pular números nem marcar etapas como concluídas sem evidências.
 
-Este repositório não contém o código-fonte original completo do jogo. Não se presume acesso a esse código nem se promete compatibilidade total. A viabilidade de cada subsistema deve ser confirmada por pesquisa técnica, protótipos e testes.
+## Compatibilidade, origem do código e licenciamento
 
-## Uso de recursos e licenciamento
+O executável original de PC e suas dependências não podem ser presumidos compatíveis com Xbox 360. Um port pode exigir reimplementação de partes do runtime, adaptação de APIs e tratamento das diferenças de CPU/GPU. Este repositório não contém o código-fonte original completo do jogo e não promete compatibilidade total.
 
-O arquivo [LICENSE](LICENSE) deste repositório indica Apache License 2.0 para o material coberto por essa licença. Isso **não concede automaticamente direitos** sobre o jogo original, marcas, executáveis, músicas, texturas, modelos ou outros recursos de terceiros. Use apenas código e recursos que você tenha autorização para distribuir e utilizar; mantenha avisos de licença e atribuições exigidos por seus respectivos titulares.
+O arquivo [LICENSE](LICENSE) aplica-se ao material coberto por essa licença neste repositório. Ele não concede automaticamente direitos sobre o jogo original, marcas, executáveis, músicas, texturas, modelos ou outros materiais de terceiros. Distribua apenas código e recursos para os quais você tenha autorização.
 
-## Checklist de progresso
+## Como relatar falhas
 
-- [x] Criar branch de desenvolvimento para o scaffold v0.2b.
-- [x] Adicionar ponto de entrada C++ mínimo.
-- [x] Adicionar Makefile configurável para o alvo ELF.
-- [x] Documentar os critérios de validação do build.
-- [ ] Confirmar a toolchain e suas dependências reais.
-- [ ] Compilar `Xenon.elf`.
-- [ ] Inspecionar formato, entry point e dependências do ELF.
-- [ ] Testar inicialização em ambiente compatível.
-- [ ] Confirmar o comando correto para `elf2xex`.
-- [ ] Gerar `default.xex` após validar o ELF.
-- [ ] Testar o XEX no console-alvo.
-- [ ] Começar os subsistemas do runtime com testes automatizados.
+Ao reportar um erro, inclua a versão da toolchain, o ambiente, o comando executado e a saída completa do compilador/linker. Nunca publique tokens, senhas ou outras credenciais.
 
-## Contribuição e relato de erros
-
-Ao relatar uma falha, inclua o sistema utilizado, a origem/versão da toolchain, o comando executado e a saída completa do compilador/linker. Não inclua chaves, tokens ou credenciais. Alterações de arquitetura devem registrar o que foi implementado, como foi testado e o que continua pendente.
+Consulte [BUILD_XENON.md](BUILD_XENON.md) para instruções de build e validação.
 
 ---
 
-**Resumo:** Gunman360 está na fase de bootstrap. O próximo marco verificável é produzir e validar `Xenon.elf`; `default.xex` e a execução do jogo continuam pendentes.
+**Resumo:** a base inicial do runtime foi adicionada à `main`, junto de um logger, um teste de compilação host e um workflow do GitHub Actions. A execução do workflow, a compilação do `Xenon.elf`, a conversão para `default.xex` e os testes no Xbox 360 continuam pendentes até serem efetivamente executados e verificados.
