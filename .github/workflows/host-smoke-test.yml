@@ -1,0 +1,20 @@
+name: Host bootstrap smoke test
+
+on:
+  push:
+    branches: [main, "gunman360-v0.2b-xenon-elf-scaffold"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  host-smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install host compiler
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++
+      - name: Compile portable bootstrap
+        run: make host-test
