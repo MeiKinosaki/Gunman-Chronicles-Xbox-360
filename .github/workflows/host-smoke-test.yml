@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install host compiler
+      - name: Set up C++ compiler
         run: |
           sudo apt-get update
           sudo apt-get install -y g++
-      - name: Compile portable bootstrap
+      - name: Compile and run bootstrap plus lifecycle tests
         run: make host-test
