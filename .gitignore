@@ -1,0 +1,13 @@
+# Local build output
+/build/
+/build-*/
+*.o
+*.obj
+*.elf
+*.xex
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*~
