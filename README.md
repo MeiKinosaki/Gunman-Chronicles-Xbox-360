@@ -11,9 +11,9 @@ Gunman360 é um projeto inicial para pesquisar e construir uma base de port/runt
 | Etapa | Estado |
 |---|---|
 | README principal na `main` | Atualizado |
-| Runtime mínimo | Implementado como scaffold |
+| Runtime mínimo | Implementado como scaffold; teste host compilado e executado localmente com sucesso |
 | Logger mínimo | Implementado |
-| Build de teste no computador (host) | Smoke test compilado e executado localmente com compilador host; workflow do GitHub Actions ainda precisa de confirmação |
+| Build de teste no computador (host) | `make host-test` compilado e executado localmente com sucesso; execução remota ainda precisa de confirmação |
 | GitHub Actions para teste host | Workflow configurado para executar o smoke test e os testes de ciclo de vida; resultado remoto pendente |
 | Toolchain Xenon real | Pendente de configuração/verificação |
 | `Xenon.elf` | Ainda não gerado/verificado |
@@ -21,7 +21,7 @@ Gunman360 é um projeto inicial para pesquisar e construir uma base de port/runt
 | Conversão para `default.xex` | Pendente |
 | Renderização, áudio e gameplay | Planejados; não implementados |
 
-Um arquivo enviado ao GitHub ou um workflow configurado não equivale a build bem-sucedido. Os resultados da automação devem ser conferidos na aba **Actions**.
+Um arquivo enviado ao GitHub ou um workflow configurado não equivale a build bem-sucedido. Os resultados da automação devem ser conferidos na aba **Actions**. O teste host também foi compilado e executado localmente neste ambiente; isso não é um teste Xenon.
 
 ## Estrutura atual
 
@@ -30,6 +30,9 @@ Gunman-Chronicles-Xbox-360/
 ├── .github/
 │   └── workflows/
 │       └── host-smoke-test.yml
+├── .gitignore
+├── tests/
+│   └── runtime_test.cpp
 ├── src/
 │   ├── main.cpp
 │   └── core/
@@ -46,8 +49,9 @@ Gunman-Chronicles-Xbox-360/
 ## Funcionalidades que já existem no bootstrap
 
 - **Logger:** emite mensagens básicas de informação, aviso e erro.
+- **Testes de ciclo de vida:** verificam que o runtime rejeita execução antes da inicialização e após o encerramento, e que pode ser inicializado e executado novamente.
 - **Runtime:** ciclo mínimo de inicialização, execução de smoke test e encerramento.
-- **Build host:** alvo para compilar o código portável com um compilador C++ comum; smoke test local executado com sucesso neste ambiente.
+- **Build host:** alvo `make host-test` para compilar o código portável e executar o smoke test; executado com sucesso neste ambiente.
 - **Build Xenon:** alvo configurável para tentar produzir o ELF quando a toolchain correta estiver instalada.
 - **Testes de ciclo de vida:** testes para conferir comportamento antes da inicialização, após inicializar e após encerrar; adicionados ao repositório.
 - **GitHub Actions:** workflow para executar o teste host e os testes de ciclo de vida em push, pull request ou manualmente; execução remota ainda precisa ser conferida.
