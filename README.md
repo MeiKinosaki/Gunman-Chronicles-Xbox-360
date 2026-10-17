@@ -13,8 +13,8 @@ Gunman360 é um projeto inicial para pesquisar e construir uma base de port/runt
 | README principal na `main` | Atualizado |
 | Runtime mínimo | Implementado como scaffold |
 | Logger mínimo | Implementado |
-| Build de teste no computador (host) | Configurado; execução ainda precisa ser verificada |
-| GitHub Actions para teste host | Workflow adicionado; resultado de execução pendente |
+| Build de teste no computador (host) | Smoke test compilado e executado localmente com compilador host; workflow do GitHub Actions ainda precisa de confirmação |
+| GitHub Actions para teste host | Workflow configurado para executar o smoke test e os testes de ciclo de vida; resultado remoto pendente |
 | Toolchain Xenon real | Pendente de configuração/verificação |
 | `Xenon.elf` | Ainda não gerado/verificado |
 | Teste no XeLL / console | Pendente |
@@ -47,9 +47,10 @@ Gunman-Chronicles-Xbox-360/
 
 - **Logger:** emite mensagens básicas de informação, aviso e erro.
 - **Runtime:** ciclo mínimo de inicialização, execução de smoke test e encerramento.
-- **Build host:** alvo para compilar o código portável com um compilador C++ comum.
+- **Build host:** alvo para compilar o código portável com um compilador C++ comum; smoke test local executado com sucesso neste ambiente.
 - **Build Xenon:** alvo configurável para tentar produzir o ELF quando a toolchain correta estiver instalada.
-- **GitHub Actions:** workflow para executar o teste host em push, pull request ou manualmente.
+- **Testes de ciclo de vida:** testes para conferir comportamento antes da inicialização, após inicializar e após encerrar; adicionados ao repositório.
+- **GitHub Actions:** workflow para executar o teste host e os testes de ciclo de vida em push, pull request ou manualmente; execução remota ainda precisa ser conferida.
 
 Esses componentes são uma fundação mínima; não implementam os sistemas de jogo nem comprovam compatibilidade com o Xbox 360.
 
